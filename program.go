@@ -6,16 +6,16 @@ import (
 	"strings"
 )
 
-func Start(program Program) {
-	cmd := Command(program)
-	cmd.Dir = program.Directory
-	// 设置标准输出和标准错误输出
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	// 启动命令
-	err := cmd.Start()
-	if err != nil {
-		panic(fmt.Errorf("启动命令时出错: %s", err))
+func Start(programs []Program) {
+	for _, program := range programs {
+		if len(program.Directory) < 0 {
+			panic(fmt.Errorf("文件目录长度必须大于0"))
+		}
+		if len(program.Command) < 0 {
+			panic(fmt.Errorf("命令长度必须大于0"))
+		}
+		p := new(Process)
+		p.Start(program)
 	}
 }
 

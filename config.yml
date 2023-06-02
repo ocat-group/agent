@@ -3,4 +3,5 @@ server:
 program:
   - name: test
     directory: D:\\DevSoftware\\Scripte
-    command: test.bat qwe asd
+    command: test.bat
+    isAutoStart: true

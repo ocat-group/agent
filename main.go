@@ -1,10 +1,11 @@
 package main
 
+import "time"
+
 var config Config
 
 func main() {
 	config := LoadConfig()
-	for _, program := range config.Programs {
-		Start(program)
-	}
+	Start(config.Programs)
+	time.Sleep(1000 * time.Second)
 }

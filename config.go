@@ -13,9 +13,10 @@ type Config struct {
 }
 
 type Program struct {
-	Name      string `mapstructure:"name"`
-	Directory string `mapstructure:"directory"`
-	Command   string `mapstructure:"command"`
+	Name        string `mapstructure:"name"`
+	Directory   string `mapstructure:"directory"`
+	Command     string `mapstructure:"command"`
+	IsAutoStart bool   `mapstructure:"isAutoStart"`
 }
 
 func LoadConfig() Config {
