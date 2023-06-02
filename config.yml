@@ -1,0 +1,6 @@
+server:
+  port: 9001
+program:
+  - name: test
+    directory: D:\\DevSoftware\\Scripte
+    command: test.bat qwe asd
