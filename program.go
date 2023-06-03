@@ -2,11 +2,16 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
 )
 
-func Start(programs []Program) {
+type Program struct {
+	Name        string `mapstructure:"name"`
+	Directory   string `mapstructure:"directory"`
+	Command     string `mapstructure:"command"`
+	IsAutoStart bool   `mapstructure:"isAutoStart"`
+}
+
+func StartProgram(programs []Program) {
 	for _, program := range programs {
 		if len(program.Directory) < 0 {
 			panic(fmt.Errorf("文件目录长度必须大于0"))
@@ -17,12 +22,4 @@ func Start(programs []Program) {
 		p := new(Process)
 		p.Start(program)
 	}
-}
-
-func appendPathSeparator(path string) string {
-	separator := string(os.PathSeparator)
-	if !strings.HasSuffix(path, separator) {
-		path += separator
-	}
-	return path
 }

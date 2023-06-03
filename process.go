@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -56,9 +57,10 @@ type Process struct {
 }
 
 func (p Process) Start(program Program) {
-	fmt.Printf("try to start program: %s", program.Name)
+	fmt.Printf("Try to start program: %s \n", program.Name)
 
-	cmd := Command(program)
+	command := appendPathSeparator(program.Directory) + program.Command
+	cmd := exec.Command(command)
 	cmd.Dir = program.Directory
 	// 设置标准输出和标准错误输出
 	cmd.Stdout = os.Stdout
@@ -86,11 +88,11 @@ func (p *Process) checkRunning() {
 				break
 			}
 		}
-		fmt.Printf("program exit：%s", p.process.Name)
+		fmt.Printf("Program exit：%s \n", p.process.Name)
 
 		if p.process.IsAutoStart {
 			// 尝试重新启动
-			fmt.Printf("try to restart program：%s", p.process.Name)
+			fmt.Printf("Try to restart program：%s \n", p.process.Name)
 			p.Start(p.process)
 			// todo
 		}
@@ -108,4 +110,12 @@ func (p *Process) isRunning() bool {
 		return p.cmd.Process.Signal(syscall.Signal(0)) == nil
 	}
 	return false
+}
+
+func appendPathSeparator(path string) string {
+	separator := string(os.PathSeparator)
+	if !strings.HasSuffix(path, separator) {
+		path += separator
+	}
+	return path
 }

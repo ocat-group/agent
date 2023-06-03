@@ -3,20 +3,12 @@ package main
 import (
 	"fmt"
 	"github.com/spf13/viper"
+	"log"
 )
 
 type Config struct {
-	Server struct {
-		Port int `mapstructure:"port"`
-	} `mapstructure:"server"`
-	Programs []Program `mapstructure:"program"`
-}
-
-type Program struct {
-	Name        string `mapstructure:"name"`
-	Directory   string `mapstructure:"directory"`
-	Command     string `mapstructure:"command"`
-	IsAutoStart bool   `mapstructure:"isAutoStart"`
+	GrpcServerConfig GrpcServerConfig `mapstructure:"grpcServer"`
+	Programs         []Program        `mapstructure:"program"`
 }
 
 func LoadConfig() Config {
@@ -30,5 +22,6 @@ func LoadConfig() Config {
 	if err := viper.Unmarshal(&config); err != nil {
 		panic(fmt.Errorf("failed to unmarshal config: %s", err))
 	}
+	log.Printf("Config file loaded successfully: %s", "config.yml")
 	return config
 }

@@ -1,7 +1,7 @@
-server:
+grpcServer:
   port: 9001
 program:
   - name: test
-    directory: D:\\DevSoftware\\Scripte
-    command: test.bat
+    directory: E:\GolangProjects\agent\script
+    command: test_script.bat
     isAutoStart: true
