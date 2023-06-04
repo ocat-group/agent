@@ -1,14 +1,15 @@
 package main
 
 import (
+	"agent/plugin_manager"
 	"fmt"
 	"github.com/spf13/viper"
 	"log"
 )
 
 type Config struct {
-	GrpcServerConfig GrpcServerConfig `mapstructure:"grpcServer"`
-	Programs         []Program        `mapstructure:"program"`
+	GrpcServerConfig GrpcServerConfig         `mapstructure:"grpcServer"`
+	Programs         []plugin_manager.Program `mapstructure:"plugin_manager"`
 }
 
 func LoadConfig() Config {

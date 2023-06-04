@@ -1,4 +1,4 @@
-package main
+package plugin_manager
 
 import (
 	"fmt"
@@ -57,9 +57,9 @@ type Process struct {
 }
 
 func (p Process) Start(program Program) {
-	fmt.Printf("Try to start program: %s \n", program.Name)
+	fmt.Printf("Try to start plugin_manager: %s \n", program.Name)
 
-	command := appendPathSeparator(program.Directory) + program.Command
+	command := AppendPathSeparator(program.Directory) + program.Command
 	cmd := exec.Command(command)
 	cmd.Dir = program.Directory
 	// 设置标准输出和标准错误输出
@@ -76,7 +76,10 @@ func (p Process) Start(program Program) {
 	p.state = Running
 	p.inStart = true
 	p.stopByUser = false
-
+	retryTimesValue := int32(0)
+	p.retryTimes = &retryTimesValue
+	// 给程序赋值
+	program.Process = &p
 	p.checkRunning()
 }
 
@@ -85,6 +88,8 @@ func (p *Process) checkRunning() {
 		for {
 			time.Sleep(1 * time.Second)
 			if !p.isRunning() {
+				// 发送程序改变消息
+				SendProgramChangeMsg()
 				break
 			}
 		}
@@ -92,9 +97,9 @@ func (p *Process) checkRunning() {
 
 		if p.process.IsAutoStart {
 			// 尝试重新启动
-			fmt.Printf("Try to restart program：%s \n", p.process.Name)
+			fmt.Printf("Try to restart plugin_manager：%s \n", p.process.Name)
 			p.Start(p.process)
-			// todo
+			SendProgramChangeMsg()
 		}
 	}()
 }
@@ -112,7 +117,7 @@ func (p *Process) isRunning() bool {
 	return false
 }
 
-func appendPathSeparator(path string) string {
+func AppendPathSeparator(path string) string {
 	separator := string(os.PathSeparator)
 	if !strings.HasSuffix(path, separator) {
 		path += separator
