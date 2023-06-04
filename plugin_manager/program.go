@@ -7,11 +7,12 @@ import (
 )
 
 type Program struct {
-	Name        string `mapstructure:"name"`
-	Directory   string `mapstructure:"directory"`
-	Command     string `mapstructure:"command"`
-	IsAutoStart bool   `mapstructure:"isAutoStart"`
-	Process     *Process
+	Name            string `mapstructure:"name"`
+	Directory       string `mapstructure:"directory"`
+	Command         string `mapstructure:"command"`
+	IsAutoStart     bool   `mapstructure:"isAutoStart"`
+	MaxRestartCount int    `mapstructure:"MaxRestartCount"`
+	Process         *Process
 }
 
 var programs []Program
@@ -24,7 +25,7 @@ func StartProgram(programs []Program) {
 		if len(program.Command) < 0 {
 			panic(fmt.Errorf("命令长度必须大于0"))
 		}
-		Process{}.Start(program)
+		startProcess(program)
 	}
 }
 
@@ -55,4 +56,30 @@ func SendProgramChangeMsg() {
 		}
 	}
 	program_service.SendProgramChangeRequest(programRss)
+}
+
+func checkRunning(program Program) {
+	go func() {
+		for {
+			time.Sleep(1 * time.Second)
+			if !program.Process.isRunning() {
+				processStop(program.Process)
+				// 发送程序改变消息
+				SendProgramChangeMsg()
+				break
+			}
+		}
+		fmt.Printf("Program exit：%s \n", program.Process.process.Name)
+
+		if program.Process.process.IsAutoStart {
+			if program.MaxRestartCount <= program.Process.retryTimes {
+				fmt.Println("已经达到最大重启次数，不再进行重启")
+				return
+			}
+			// 尝试重新启动
+			fmt.Printf("Try to restart Plugin：%s \n", program.Process.process.Name)
+			startProcess(program.Process.process)
+			SendProgramChangeMsg()
+		}
+	}()
 }

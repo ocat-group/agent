@@ -5,3 +5,4 @@ program:
     directory: E:\GolangProjects\agent\script
     command: test_script.bat
     isAutoStart: true
+    MaxRestartCount: 3
