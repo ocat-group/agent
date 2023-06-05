@@ -1,4 +1,4 @@
-package main
+package grpc
 
 import (
 	pb "agent/grpc/service"

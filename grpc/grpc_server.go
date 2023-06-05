@@ -1,8 +1,6 @@
-package main
+package grpc
 
 import (
-	grpc2 "agent/grpc"
-	"agent/grpc/acceptor"
 	pb "agent/grpc/service"
 	"fmt"
 	"google.golang.org/grpc"
@@ -29,16 +27,16 @@ type server struct {
 }
 
 func (s *server) RequestBiStream(stream pb.BiRequestStream_RequestBiStreamServer) error {
-	grpc2.Mutex.Lock()
-	grpc2.RegisterConnection(stream)
-	grpc2.Mutex.Unlock()
+	Mutex.Lock()
+	RegisterConnection(stream)
+	Mutex.Unlock()
 	for {
-		rq, err := grpc2.GetConnection().Recv()
+		rq, err := GetConnection().Recv()
 		if err != nil {
 			return err
 		}
 		log.Printf("Received message: %s", rq)
-		acceptor.RequestAcceptor(rq)
+		RequestAcceptor(rq)
 	}
 }
 

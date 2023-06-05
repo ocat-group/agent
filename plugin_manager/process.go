@@ -15,7 +15,7 @@ type State int
 
 const (
 	// Stopped the stopped state
-	Stopped State = iota
+	Stopped = 0
 
 	// Starting the starting state
 	Starting = 10
@@ -30,13 +30,13 @@ const (
 	Stopping = 40
 
 	// Exited the Exited state
-	Exited = 100
+	Exited = 50
 
 	// Fatal the Fatal state
-	Fatal = 200
+	Fatal = 60
 
 	// Unknown the unknown state
-	Unknown = 1000
+	Unknown = 70
 )
 
 type Process struct {
@@ -44,7 +44,7 @@ type Process struct {
 	cmd       *exec.Cmd
 	startTime time.Time
 	stopTime  time.Time
-	state     State
+	state     int
 	// true if process is starting
 	inStart bool
 	// true if the process is stopped by user

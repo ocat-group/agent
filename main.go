@@ -1,11 +1,13 @@
 package main
 
 import (
+	"agent/grpc"
 	"agent/plugin_manager"
 	"fmt"
 	"github.com/jessevdk/go-flags"
 )
 
+// Options 命令行参数
 type Options struct {
 	Configuration string `short:"c" long:"configuration" description:"the configuration file"`
 }
@@ -20,10 +22,11 @@ func main() {
 	// 启动程序
 	plugin_manager.StartProgram(config.Programs)
 	// 启动GRPC服务
-	StartGrpcServer(config.GrpcServerConfig)
+	grpc.StartGrpcServer(config.GrpcServerConfig)
 }
 
+// 加载命令行参数
 func loadCommandLineParams() {
-	flags.NewParser(&options, flags.Default & ^flags.PrintErrors)
+	flags.Parse(&options)
 	fmt.Printf("configuration:%s", options.Configuration)
 }

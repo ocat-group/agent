@@ -3,17 +3,21 @@ package program_service
 import (
 	"agent/grpc"
 	pb "agent/grpc/service"
-	"agent/plugin_manager"
 	"encoding/json"
 	"fmt"
 	"google.golang.org/protobuf/types/known/anypb"
 	"log"
 	"sync"
+	"time"
 )
 
 type PluginService struct{}
 
 var once sync.Once
+
+func init() {
+	grpc.RegisterRequestBiStreamAcceptor(&PluginService{})
+}
 
 func (*PluginService) Handler(rq *pb.Payload) {
 
@@ -22,7 +26,19 @@ func (*PluginService) Handler(rq *pb.Payload) {
 type Process struct {
 }
 
-func SendProgramChangeRequest(programs []plugin_manager.ProgramRs) {
+type ProgramRs struct {
+	Name        string `mapstructure:"name"`
+	Directory   string `mapstructure:"directory"`
+	Command     string `mapstructure:"command"`
+	IsAutoStart bool   `mapstructure:"isAutoStart"`
+	Pid         int
+	StartTime   time.Time
+	StopTime    time.Time
+	State       int
+	StopByUser  bool
+}
+
+func SendProgramChangeRequest(programs []ProgramRs) {
 	// 将字典转换为 JSON 字符串
 	dataBytes, err := json.Marshal(programs)
 	if err != nil {

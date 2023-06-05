@@ -1,8 +1,7 @@
-package acceptor
+package grpc
 
 import (
 	pb "agent/grpc/service"
-	program_service "agent/service"
 	"log"
 )
 
@@ -11,13 +10,9 @@ type RequestBiStreamAcceptor interface {
 	GetType() string
 }
 
-func init() {
-	registerRequestBiStreamAcceptor(&program_service.PluginService{})
-}
-
 var requestBiStreamAcceptors []RequestBiStreamAcceptor
 
-func registerRequestBiStreamAcceptor(handler RequestBiStreamAcceptor) {
+func RegisterRequestBiStreamAcceptor(handler RequestBiStreamAcceptor) {
 	requestBiStreamAcceptors = append(requestBiStreamAcceptors, handler)
 }
 

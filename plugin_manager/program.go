@@ -29,30 +29,18 @@ func StartProgram(programs []Program) {
 	}
 }
 
-type ProgramRs struct {
-	name        string `mapstructure:"name"`
-	directory   string `mapstructure:"directory"`
-	command     string `mapstructure:"command"`
-	isAutoStart bool   `mapstructure:"isAutoStart"`
-	pid         int
-	startTime   time.Time
-	stopTime    time.Time
-	state       State
-	stopByUser  bool
-}
-
 func SendProgramChangeMsg() {
-	programRss := make([]ProgramRs, len(programs), len(programs))
+	programRss := make([]program_service.ProgramRs, len(programs), len(programs))
 	for index, program := range programs {
-		programRss[index] = ProgramRs{name: program.Name,
-			directory:   program.Directory,
-			command:     program.Command,
-			isAutoStart: program.IsAutoStart,
-			pid:         program.Process.cmd.Process.Pid,
-			startTime:   program.Process.startTime,
-			stopTime:    program.Process.stopTime,
-			state:       program.Process.state,
-			stopByUser:  program.Process.stopByUser,
+		programRss[index] = program_service.ProgramRs{Name: program.Name,
+			Directory:   program.Directory,
+			Command:     program.Command,
+			IsAutoStart: program.IsAutoStart,
+			Pid:         program.Process.cmd.Process.Pid,
+			StartTime:   program.Process.startTime,
+			StopTime:    program.Process.stopTime,
+			State:       program.Process.state,
+			StopByUser:  program.Process.stopByUser,
 		}
 	}
 	program_service.SendProgramChangeRequest(programRss)

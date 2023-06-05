@@ -1,6 +1,7 @@
 package main
 
 import (
+	"agent/grpc"
 	"agent/plugin_manager"
 	"fmt"
 	"github.com/spf13/viper"
@@ -8,7 +9,7 @@ import (
 )
 
 type Config struct {
-	GrpcServerConfig GrpcServerConfig         `mapstructure:"grpcServer"`
+	GrpcServerConfig grpc.GrpcServerConfig    `mapstructure:"grpcServer"`
 	Programs         []plugin_manager.Program `mapstructure:"plugin_manager"`
 }
 
