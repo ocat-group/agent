@@ -40,7 +40,7 @@ const (
 )
 
 type Process struct {
-	process   Program
+	process   *Program
 	cmd       *exec.Cmd
 	startTime time.Time
 	stopTime  time.Time
@@ -52,7 +52,7 @@ type Process struct {
 	retryTimes int
 }
 
-func startProcess(program Program) {
+func startProcess(program *Program) {
 	fmt.Printf("Try to start Plugin: %s \n", program.Name)
 
 	command := appendPathSeparator(program.Directory) + program.Command
@@ -71,7 +71,7 @@ func startProcess(program Program) {
 	p.listenRunningStatus()
 }
 
-func createProcess(program Program, cmd *exec.Cmd) *Process {
+func createProcess(program *Program, cmd *exec.Cmd) *Process {
 	// 代表第一次启动
 	if program.Process != nil {
 		program.Process.startTime = time.Now()
@@ -142,4 +142,8 @@ func appendPathSeparator(path string) string {
 		path += separator
 	}
 	return path
+}
+
+func stopProcess(program *Program) {
+	program.Process.cmd.Process.Kill()
 }

@@ -15,23 +15,24 @@ type Program struct {
 	Process         *Process
 }
 
-var programs []Program
+var currentPrograms []Program
 
 func StartProgram(programs []Program) {
-	for _, program := range programs {
+	currentPrograms = programs
+	for _, program := range currentPrograms {
 		if len(program.Directory) < 0 {
 			panic(fmt.Errorf("文件目录长度必须大于0"))
 		}
 		if len(program.Command) < 0 {
 			panic(fmt.Errorf("命令长度必须大于0"))
 		}
-		startProcess(program)
+		startProcess(&program)
 	}
 }
 
 func SendProgramChangeMsg() {
-	programRss := make([]program_service.ProgramRs, len(programs), len(programs))
-	for index, program := range programs {
+	programRss := make([]program_service.ProgramRs, len(currentPrograms), len(currentPrograms))
+	for index, program := range currentPrograms {
 		programRss[index] = program_service.ProgramRs{Name: program.Name,
 			Directory:   program.Directory,
 			Command:     program.Command,
@@ -44,6 +45,58 @@ func SendProgramChangeMsg() {
 		}
 	}
 	program_service.SendProgramChangeRequest(programRss)
+}
+
+func Reload(programs []Program) {
+	// 新增的程序
+	addPrograms := getDiff(programs, currentPrograms)
+	// 删除的程序
+	removePrograms := getDiff(currentPrograms, programs)
+	// 重新启动的程序
+	restartPrograms := getRestartPrograms(programs, currentPrograms)
+	for _, p := range addPrograms {
+		startProcess(&p)
+	}
+
+	for _, p := range removePrograms {
+		stopProcess(&p)
+	}
+
+	for _, p := range restartPrograms {
+		stopProcess(&p)
+		startProcess(&p)
+	}
+
+}
+
+func getRestartPrograms(new, old []Program) []Program {
+	var intersection []Program
+	for _, n := range new {
+		for _, o := range old {
+			if n.Name == o.Name && n.Directory == o.Directory && n.Command == o.Command {
+				intersection = append(intersection, n)
+				break
+			}
+		}
+	}
+	return intersection
+}
+
+func getDiff(new, old []Program) []Program {
+	var diff []Program
+	for _, n := range new {
+		found := false
+		for _, o := range old {
+			if n.Name == o.Name {
+				found = true
+				break
+			}
+		}
+		if !found {
+			diff = append(diff, n)
+		}
+	}
+	return diff
 }
 
 func checkRunning(program Program) {
