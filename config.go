@@ -10,7 +10,7 @@ import (
 
 type Config struct {
 	GrpcServerConfig grpc.GrpcServerConfig    `mapstructure:"grpcServer"`
-	Programs         []plugin_manager.Program `mapstructure:"plugin_manager"`
+	Programs         []plugin_manager.Program `mapstructure:"program"`
 }
 
 func LoadConfig(options *Options) Config {

@@ -28,5 +28,5 @@ func main() {
 // 加载命令行参数
 func loadCommandLineParams() {
 	flags.Parse(&options)
-	fmt.Printf("configuration:%s", options.Configuration)
+	fmt.Printf("configuration:%s \n", options.Configuration)
 }
