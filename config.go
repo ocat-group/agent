@@ -12,8 +12,8 @@ type Config struct {
 	Programs         []plugin_manager.Program `mapstructure:"plugin_manager"`
 }
 
-func LoadConfig() Config {
-	viper.SetConfigFile("config.yml")
+func LoadConfig(options *Options) Config {
+	viper.SetConfigFile(options.Configuration)
 
 	if err := viper.ReadInConfig(); err != nil {
 		panic(fmt.Errorf("failed to read config file: %s", err))
@@ -23,6 +23,6 @@ func LoadConfig() Config {
 	if err := viper.Unmarshal(&config); err != nil {
 		panic(fmt.Errorf("failed to unmarshal config: %s", err))
 	}
-	log.Printf("Config file loaded successfully: %s", "config.yml")
+	log.Printf("Config file loaded successfully: %s", options.Configuration)
 	return config
 }
