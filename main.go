@@ -2,9 +2,9 @@ package main
 
 import (
 	"agent/grpc"
-	"agent/plugin_manager"
 	"fmt"
 	"github.com/jessevdk/go-flags"
+	"sync"
 )
 
 // Options 命令行参数
@@ -13,8 +13,6 @@ type Options struct {
 }
 
 var options Options
-
-var config Config
 
 func main() {
 	// 加载命令行参数
@@ -29,10 +27,14 @@ func loadCommandLineParams() {
 }
 
 func Reload() {
+	config := &Config{}
 	// 加载配置文件
-	config := LoadConfig(&options)
+	config.loadConfig(&options)
 	// 启动程序
-	plugin_manager.StartProgram(config.Programs)
-	// 启动GRPC服务
-	grpc.StartGrpcServer(config.GrpcServerConfig)
+	//plugin_manager.StartProgram(config.Programs)
+	// todo 现阶段rpc服务只启动一次，后续要调整
+	var once sync.Once
+	once.Do(func() {
+		grpc.StartGrpcServer(config.GrpcServerConfig)
+	})
 }

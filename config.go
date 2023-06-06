@@ -3,35 +3,55 @@ package main
 import (
 	"agent/grpc"
 	"agent/plugin_manager"
+	"agent/util"
 	"encoding/json"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
-	"log"
+	"sync"
 )
 
+var config Config
+
 type Config struct {
-	GrpcServerConfig grpc.GrpcServerConfig    `mapstructure:"grpcServer"`
+	GrpcServerConfig grpc.ServerConfig        `mapstructure:"grpcServer"`
 	Programs         []plugin_manager.Program `mapstructure:"program"`
+	Lock             *sync.Mutex
+	Md5              string
 }
 
-func LoadConfig(options *Options) Config {
+var configInit sync.Once
+var configListen sync.Once
+
+func (c *Config) loadConfig(options *Options) Config {
 	viper.SetConfigFile(options.Configuration)
-
 	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("failed to read config file: %s", err))
+		panic(fmt.Errorf("failed to read config file: %v", err))
 	}
-
-	config := Config{}
+	// 初始化config
+	configInit.Do(func() {
+		config = Config{Lock: &sync.Mutex{}}
+	})
+	// 加载config
+	config.Lock.Lock()
 	if err := viper.Unmarshal(&config); err != nil {
 		panic(fmt.Errorf("failed to unmarshal config: %s", err))
 	}
-	printLatestConfiguration(&config)
-	log.Printf("Config file loaded successfully: %s \n", options.Configuration)
+	config.Lock.Unlock()
+	// 监听配置
 	viper.WatchConfig()
 	viper.OnConfigChange(func(e fsnotify.Event) {
+		currentMd5, err := util.ReadFileMd5(options.Configuration)
+		if err != nil {
+			fmt.Println("Failed to read configuration file.")
+		}
+		if config.Md5 == currentMd5 {
+			fmt.Println("The configuration file has not changed, skip this processing.")
+			return
+		}
+		config.Md5 = currentMd5
 		fmt.Printf("Config file changed: %s \n", e.Name)
-		// 重新加载配置
+
 		if err := viper.ReadInConfig(); err != nil {
 			panic(fmt.Errorf("failed to read config file: %s", err))
 		}
@@ -39,18 +59,17 @@ func LoadConfig(options *Options) Config {
 			fmt.Printf("Failed to reload config file: %s \n", err)
 		} else {
 			fmt.Println("Config reloaded successfully.")
-			printLatestConfiguration(&config)
+			config.printLatestConfig()
 			Reload()
 		}
 	})
-	// 持续运行，等待配置文件的改变
 	return config
 }
 
-func printLatestConfiguration(config *Config) {
-	jsonData, err := json.Marshal(config)
+func (c *Config) printLatestConfig() {
+	jsonData, err := json.Marshal(c)
 	if err != nil {
-		fmt.Println("Failed to marshal struct to JSON:", err)
+		fmt.Println("Failed to marshal struct to JSON.", err)
 		return
 	}
 	fmt.Printf("Latest configuration: %v \n", string(jsonData))

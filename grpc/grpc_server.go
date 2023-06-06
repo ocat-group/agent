@@ -18,7 +18,7 @@ const localhost = "localhost:"
 
 const listenProtocol = "tcp"
 
-type GrpcServerConfig struct {
+type ServerConfig struct {
 	Port int `mapstructure:"port"`
 }
 
@@ -40,7 +40,7 @@ func (s *server) RequestBiStream(stream pb.BiRequestStream_RequestBiStreamServer
 	}
 }
 
-func StartGrpcServer(grpcServerConfig GrpcServerConfig) {
+func StartGrpcServer(grpcServerConfig ServerConfig) {
 	address := localhost + strconv.Itoa(grpcServerConfig.Port)
 	listen, err := net.Listen(listenProtocol, address)
 	if err != nil {
