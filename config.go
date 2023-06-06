@@ -14,14 +14,13 @@ import (
 var config Config
 
 type Config struct {
-	GrpcServerConfig grpc.ServerConfig        `mapstructure:"grpcServer"`
-	Programs         []plugin_manager.Program `mapstructure:"program"`
+	GrpcServerConfig grpc.ServerConfig         `mapstructure:"grpcServer"`
+	Programs         []*plugin_manager.Program `mapstructure:"program"`
 	Lock             *sync.Mutex
 	Md5              string
 }
 
 var configInit sync.Once
-var configListen sync.Once
 
 func (c *Config) loadConfig(options *Options) Config {
 	viper.SetConfigFile(options.Configuration)

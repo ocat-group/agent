@@ -2,6 +2,7 @@ package main
 
 import (
 	"agent/grpc"
+	"agent/plugin_manager"
 	"fmt"
 	"github.com/jessevdk/go-flags"
 	"sync"
@@ -30,9 +31,10 @@ func Reload() {
 	config := &Config{}
 	// 加载配置文件
 	config.loadConfig(&options)
-	// 启动程序
-	//plugin_manager.StartProgram(config.Programs)
-	// todo 现阶段rpc服务只启动一次，后续要调整
+	// 重载插件
+	plugin_manager.Reload(config.Programs)
+	// todo grpc目前先不考虑端口的改变，因为端口改变会导致所有长链接断开，
+	// todo 服务端需要获取最新的端口进行重连，这里是否有意义，待考虑，所以暂时不进行实现
 	var once sync.Once
 	once.Do(func() {
 		grpc.StartGrpcServer(config.GrpcServerConfig)
