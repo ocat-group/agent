@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+option go_package = "service/";
+
+message Metadata {
+  string type = 3;
+  string clientIp = 8;
+  map<string, string> headers = 7;
+}
+
+message Payload {
+  Metadata metadata = 2;
+  google.protobuf.Any body = 3;
+}
+
+
+service BiRequestStream {
+  // 请求双向流
+  rpc RequestBiStream (stream Payload) returns (stream Payload) {}
+}

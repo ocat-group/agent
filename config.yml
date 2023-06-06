@@ -1,7 +1,8 @@
-server:
+grpcServer:
   port: 9001
 program:
   - name: test
-    directory: D:\\DevSoftware\\Scripte
-    command: test.bat
+    directory: D:\DevSoftware\GolandProjects\agent\script
+    command: test_script.bat
     isAutoStart: true
+    MaxRestartCount: 3
